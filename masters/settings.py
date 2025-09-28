@@ -15,8 +15,9 @@ if not SECRET_KEY:
 # ✅ Set DEBUG via environment variable (default False for safety)
 DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
 
-# ✅ Correctly parse ALLOWED_HOSTS from .env (comma-separated)
-# ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1, localhost")#, masters-spiritual.com")
+# local
+# ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost")
+# prod
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS",  "masters-spiritual.com,www.masters-spiritual.com,masters-spiritual.onrender.com")
 
 ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS.split(",") if host]
@@ -129,6 +130,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # --------------------------------------------------------------------------
 # CUSTOM & THIRD-PARTY SETTINGS
