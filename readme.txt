@@ -31,6 +31,7 @@ myproject/
     ├── views.py
     ├── urls.py
     └── templates/social/
+<<<<<<< HEAD
 
 Single folder for CSS, JS, images. Shared across all apps.
 
@@ -96,3 +97,5 @@ buddha/             osho/            krishna/
            └─────────────────────────┘
 
 
+=======
+>>>>>>> ec2e4328a35b9d5508a0e0d6c397784cb6347788
