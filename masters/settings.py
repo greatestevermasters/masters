@@ -16,7 +16,9 @@ if not SECRET_KEY:
 DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
 
 # ✅ Correctly parse ALLOWED_HOSTS from .env (comma-separated)
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost")
+# ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1, localhost")#, masters-spiritual.com")
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS",  "masters-spiritual.com,www.masters-spiritual.com")
+
 ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS.split(",") if host]
 
 # --------------------------------------------------------------------------
@@ -95,7 +97,13 @@ DATABASES = {
     "default": dj_database_url.config(
         default=os.getenv("DATABASE_URL"))
 }
-
+# DATABASES = {
+#     "default": dj_database_url.config(
+#         default="sqlite:///db.sqlite3",  # fallback for local dev
+#         conn_max_age=600,
+#         ssl_require=False,  # set True for Render if needed
+#     )
+# }
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
