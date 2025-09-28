@@ -1,0 +1,36 @@
+/* ======================== Minimal Custom CSS ======================== */
+
+/* Dropdown button styling */
+.dropdown-btn {
+    border-radius: 0.5rem;       /* rounded corners */
+    color: #dcf03f;              /* text color */
+    padding: 0.5rem 1rem;        /* spacing inside button */
+    background-color: #0d6c51;   /* button background */
+    border: none;                /* remove default border */
+    cursor: pointer;             /* pointer on hover */
+    font-weight: bold;           /* bold text */
+    transition: background-color 0.2s ease; /* smooth hover */
+}
+
+.dropdown-btn:hover {
+    background-color: #08ec9d;   /* slightly darker on hover */
+}
+
+/* Dropdown menu styling */
+.dropdown-content {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: auto;
+    min-width: 180px;
+    border-radius: 0.5rem;       /* rounded corners for menu */
+    z-index: 9999;
+    display: none;               /* hidden by default */
+    max-height: 60vh;
+    overflow-y: auto;
+    background-color: #ef0e0e;   /* optional menu background */
+}
+
+.dropdown-content.show {
+    display: block;
+}

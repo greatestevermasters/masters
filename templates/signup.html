@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="flex justify-center mt-10">
+  <div class="w-full max-w-md p-8 bg-gray-900 rounded-2xl shadow-lg">
+    <h1 class="text-3xl font-semibold text-center text-white mb-6">Create an Account</h1>
+
+    <form method="post" class="needs-validation">
+      {% csrf_token %}
+
+      <div class="mb-4">
+        {{ form.username|as_crispy_field }}
+      </div>
+      <div class="mb-4">
+        {{ form.mobile|as_crispy_field }}
+      </div>
+      <div class="mb-4">
+        {{ form.email|as_crispy_field }}
+      </div>
+      <div class="mb-4">
+        {{ form.password1|as_crispy_field }}
+      </div>
+      <div class="mb-4">
+        {{ form.password2|as_crispy_field }}
+      </div>
+
+      <button type="submit"
+              class="w-full btn btn-primary fw-semibold py-2">
+        Sign Up
+      </button>
+    </form>
+
+    <p class="text-center text-gray-400 mt-4">
+      Already have an account?
+      <a href="{% url 'login' %}" class="text-blue-400 hover:underline">Login</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

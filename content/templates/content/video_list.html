@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Videos{% endblock %}
+
+{% block content %}
+  <h1 class="page-title text-white text-center">
+      {{ master|capfirst }} : {{ content_type|capfirst }}s 
+  </h1>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  {% for item in items %}
+
+  <div>
+    <h2 class="card-title text-yellow-300 text-center">
+      <a href="{{ item.get_absolute_url }}" class="text-yellow-300 no-underline">{{ item.title }}</a>
+    </h2>
+
+    <a href="{{ item.get_absolute_url }}" class="card p-6 text-center">
+      
+      {% if item.image %}
+        <img src="{{ item.image.url }}"
+             alt="{{ item.title }}"
+             class="w-full h-64 md:h-80 lg:h-96 object-cover rounded-t-lg">
+      {% endif %}
+
+      <p class="text-white mt-2 text-justify">
+        {{ item.description|truncatewords:0|safe }}
+      </p>
+    </a>
+  </div>
+
+  {% empty %}
+    <p class="text-center text-grey-900">No videos yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Search Results for "{{ query }}"</h1>
+
+{% if results %}
+  <div class="space-y-10">
+    {% for app, categories in results.items %}
+      <div>
+        <h2 class="text-2xl font-semibold capitalize mb-4">{{ app }}</h2>
+
+        {% for category, items in categories.items %}
+          {% if items %}
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold text-gray-700 capitalize mb-2">{{ category }}</h3>
+              <ul class="list-disc pl-6 space-y-1">
+                {% for item in items %}
+                  <li>
+                    <a href="{{ item.get_absolute_url }}" class="text-blue-600 hover:underline">
+                      {{ item.title }}
+                    </a>
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="text-gray-600">No results found.</p>
+{% endif %}
+{% endblock %}

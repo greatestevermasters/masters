@@ -1,0 +1,109 @@
+
+/* ---------- Grid 2x2 ---------- */
+.grid-2x2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  justify-items: center;
+  align-items: start;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* ---------- Section Card (wrapper) ---------- */
+.section-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--glass);
+  border-radius: 1rem;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  box-shadow: var(--shadow);
+  border: 10px solid rgba(247, 231, 9, 0.4);
+  overflow: hidden;
+  margin: 0 auto;
+  transition: none;
+  width: 100%;
+  height: 100%;
+  max-width: 1200px;
+  min-height: 500px;
+  box-sizing: border-box;
+  justify-content: space-between;
+}
+
+/* ---------- Header ---------- */
+.section-header {
+  padding: 0.25rem 1rem;
+  background: linear-gradient(135deg, #bea6c2, #c4a3d8);
+  color: #d60e0e;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 1px solid rgba(54, 43, 43, 0.2);
+  text-align: center;
+}
+
+.section-title {
+  margin: 0;
+  padding-left: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ---------- Body ---------- */
+.section-body {
+  padding: 0.1rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+
+/* ---------- Card / Book / Blog / Video Wrapper ---------- */
+.section-body .card,
+.section-body .book-card,
+.section-body .blog-card,
+.section-body .video-wrapper {
+  background: #10e7b9;
+  border-radius: 1rem;
+  overflow: hidden;
+  display: flex;
+  margin: 0 auto;
+  box-shadow: 0 4px 12px rgba(238, 8, 8, 0.08);
+  transition: transform 0.3s ease;
+  width: 100%;
+  max-width: 100%;
+  height: 250px;
+  box-sizing: border-box;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 992px) {
+  .grid-2x2 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  .section-card {
+    max-width: 48%;
+    min-height: 450px;
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-2x2 {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .section-card {
+    max-width: 95%;
+    min-height: 400px;
+    margin: 0.5rem auto;
+  }
+  .section-title { font-size: 1rem; }
+  .card-excerpt { font-size: 0.9rem; }
+  .toolbar { padding: 0.5rem; }
+}

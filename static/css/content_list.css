@@ -1,0 +1,45 @@
+/* Reset & Typography */
+body {
+  font-family: 'Inter','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+  color: #111827;
+  background-color: #f6f1f1;
+  line-height: 1.6;
+  margin: 0;
+  padding: 20px;
+}
+h1,h2,h3,h4,h5,h6 { margin: 0; }
+p { margin: 0; }
+
+/* Card */
+.card {
+  background-color: #7f5757;
+  box-shadow: none;
+  border-radius: 1rem;
+  transition: all 0.28s ease;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  margin: 10px;
+}
+
+.card-img {
+  width: 100%;
+  height: 12rem;
+  object-fit: cover;
+  border-radius: 0.75rem;
+  transition: none;
+
+}
+
+.card-title {
+  font-weight: 600;
+  font-size: 1.125rem;
+  margin-top: 0.75rem;
+  color: #5d80e6;
+}
+.card-excerpt {
+  color: #3a122a;
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+  flex-grow: none;
+}

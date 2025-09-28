@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{%load static%}
+{% load clean_html %}
+{% load social_buttons%}
+{% block title %}{{ item.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto bg-blue shadow-lg rounded-2xl p-6">
+
+  <!-- Image (if exists) -->
+  {% if item.image %}
+    <img src="{{ item.image.url }}" alt="{{ item.title }}" class="w-full h-64 md:h-80 lg:h-96 object-contain rounded-t-lg">
+  {% endif %}
+
+  <!-- Title -->
+  <h1 class="text-3xl text-yellow-300 mb-4">{{ item.title }}</h1>
+
+ <!--Description / Body-->
+  {% if item.description %}
+    <div class="text-white leading-relaxed text-justify">{{ item.description|striptags }}</div>
+  {% endif %}
+
+  <!-- Author (for books) -->
+  {% if item.author %}
+    <p class="mt-2 text-yellow-300 font-semibold">Author: {{ item.author }}</p>
+  {% endif %}
+
+  <!-- Video URL (if type is video) -->
+  {% if item.content_type == "video" and item.url %}
+    <div class="mt-4 text-justify">
+      <iframe
+        width="100%"
+        height="480"
+        src="{{ item.url }}"
+        title="{{ item.title }}"
+        frameborder="0"
+        allowfullscreen
+      ></iframe>
+    </div>
+  {% endif %}
+
+  <!-- Excerpt / Short intro (optional)-->
+  {% if item.excerpt %}
+    <p class="text-white italic mt-4 text-justify">{{ item.excerpt|striptags }}</p>
+  {% endif %} 
+
+  <!-- Back to list -->
+  <a href="{% url 'content_list' master=item.master content_type=item.content_type %}"
+   class="inline-block mt-6 px-5 py-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600
+          text-white font-semibold shadow-lg hover:from-emerald-600 hover:to-green-700
+          hover:shadow-xl transition duration-300 ease-in-out">
+  ← Back to {{ item.master|capfirst }} {{ item.content_type|capfirst }}
+</a>
+
+</div>
+{% endblock %}

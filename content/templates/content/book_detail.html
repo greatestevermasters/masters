@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load static %}
+{% load social_tags %}
+{% load clean_html %}
+
+{% block title %}{{ item.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto bg-blue rounded-2xl p-6">
+
+  <h1 class="text-3xl text-yellow-300 font-bold mb-4 cursor-pointer"
+      onclick="document.getElementById('item-content').classList.toggle('hidden')">
+    {{ item.title }}
+  </h1>
+
+  {% if item.image %}
+    <img src="{{ item.image.url }}" alt="{{ item.title }}"
+         class="w-full h-64 md:h-80 lg:h-96 object-contain rounded-t-lg">
+  {% endif %}
+<br>
+  <div id="item-content" class="mb-4 text color-green-400 text-justify prose max-w-none">
+      {% if item.description %}
+          {{ item.description|clean_html|safe }}
+      {% elif item.content %}
+          {{ item.content|clean_html|safe }}
+      {% endif %}
+  </div>
+
+  <div class="mt-6">
+    {% include "social/social_buttons.html" with object=item like_count=like_count dislike_count=dislike_count share_count=share_count prev_url=prev_url next_url=next_url %}
+  </div>
+
+  <div class="flex justify-between mt-6">
+      {% if prev_item %}
+        <a href="{{ prev_item.get_absolute_url }}" class="text-white hover:underline">
+          ← Previous {{ content_type|capfirst }}
+        </a>
+      {% else %}
+        <span></span>
+      {% endif %}
+
+      {% if next_item %}
+        <a href="{{ next_item.get_absolute_url }}" class="text-white hover:underline">
+          Next {{ content_type|capfirst }} →
+        </a>
+      {% endif %}
+  </div>
+
+  <a href="{% url 'content:content_list' master=master content_type=content_type %}"
+     class="inline-block mt-4 text-white hover:underline">
+    ← Back to {{ master|capfirst }} {{ content_type|capfirst }}
+  </a>
+
+</div>
+
+<script src="{% static 'social/social_buttons.js' %}"></script>
+<link rel="stylesheet" href="{% static 'social/social_buttons.css' %}">
+
+{% endblock %}

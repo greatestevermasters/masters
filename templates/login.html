@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Sign in{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-[#4d2323]">
+  <div class="w-full max-w-md bg-white/5 backdrop-blur-sm border border-white/6 rounded-xl p-8 shadow">
+    <h2 class="text-2xl font-bold text-yellow-300 mb-4">Login</h2>
+  
+    {% if form.non_field_errors %}
+      <div class="mb-3 text-red-300">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <form method="post" action="{% url 'login' %}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+      
+      <div class="mb-4">
+        <label class="block text-sm text-gray-200 mb-1"></label>
+        {{ form.username|as_crispy_field|default:form.username }}
+      </div>
+      
+      <div class="mb-2">
+        <label class="block text-sm text-gray-200 mb-1"></label>
+        {{ form.password|as_crispy_field|default:form.password }}
+      </div>
+
+      <!-- Forgot Password link -->
+      <p class="text-sm text-yellow-300 text-right mb-4">
+        <a href="{% url 'forgot_password' %}" class="underline hover:text-yellow-400">Forgot Password?</a>
+      </p>
+
+      <button type="submit" class="w-full py-2 rounded-full bg-yellow-400 text-[#4d2323] font-semibold hover:bg-yellow-300 transition">
+        Login
+      </button>
+    </form>
+
+    <p class="mt-4 text-sm text-gray-300 text-center">
+      <a href="{% url 'access_prompt' %}" class="underline">Back</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

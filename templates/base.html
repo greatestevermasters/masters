@@ -1,0 +1,223 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>{% block title %}Masters{% endblock %}</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+  <!-- Global CSS -->
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/content_home.css' %}">
+  <link rel="stylesheet" href="{% static 'css/index.css' %}">
+  <link rel="stylesheet" href="{% static 'css/content_list.css' %}">
+  <link rel="stylesheet" href="{% static 'css/content_detail.css' %}">
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body style="background-color: #4d2323;">
+
+  <!-- ===== User/Login Bar (Mobile) ===== -->
+  <div class="flex justify-end items-center p-2 lg:hidden bg-[#4d2323] text-white space-x-2">
+    {% if user.is_authenticated %}
+      <span class="text-sm text-gray-100">Hi, {{ user.get_username }}</span>
+      <a href="{% url 'logout' %}" class="px-3 py-1 rounded-full bg-yellow-400 text-[#4d2323] font-semibold hover:bg-yellow-300 transition">Logout</a>
+    {% elif request.session.is_guest %}
+      <span class="text-sm text-gray-100">Guest</span>
+      <a href="{% url 'logout' %}" class="px-3 py-1 rounded-full bg-yellow-400 text-[#4d2323] font-semibold hover:bg-yellow-300 transition">Exit Guest</a>
+    {% else %}
+      <a href="{% url 'access_prompt' %}" class="px-3 py-1 rounded-full border border-yellow-400 text-yellow-300 hover:bg-yellow-400/10 transition">Login</a>
+      <a href="{% url 'signup' %}" class="px-3 py-1 rounded-full bg-yellow-400 text-[#4d2323] font-semibold hover:bg-yellow-300 transition">SignUp</a>
+    {% endif %}
+  </div>
+
+  <!-- ===== Main Navbar ===== -->
+  <nav class="bg-[#4d2323] p-4 text-white flex flex-wrap items-center justify-between shadow-md relative">
+    <!-- Hamburger Button -->
+    <div class="flex items-center lg:hidden">
+      <button id="menu-btn" class="text-yellow-300 focus:outline-none p-2 rounded hover:bg-yellow-400/20 transition">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+    </div>
+    <div class="hidden w-full lg:flex lg:w-auto flex-col lg:flex-row lg:space-x-6 text-lg font-medium" id="desktop-links">
+      <a href="/" class="block px-2 py-2 lg:px-0 lg:py-0 text-yellow-300 hover:text-yellow-400 transition">Home</a>
+      <a href="{% url 'content:master_home' 'buddha' %}" class="block px-2 py-2 lg:px-0 lg:py-0 text-yellow-300 hover:text-yellow-400 transition">Buddha</a>
+      <a href="{% url 'content:master_home' 'osho' %}" class="block px-2 py-2 lg:px-0 lg:py-0 text-yellow-300 hover:text-yellow-400 transition">Osho</a>
+      <a href="{% url 'content:master_home' 'krishna' %}" class="block px-2 py-2 lg:px-0 lg:py-0 text-yellow-300 hover:text-yellow-400 transition">Krishna</a>
+      <a href="{% url 'content:global_type_list' 'teaching' %}" class="block px-2 py-2 lg:px-0 lg:py-0 text-yellow-300 hover:text-yellow-400 transition">Teachings</a>
+      <a href="{% url 'content:global_type_list' 'book' %}" class="block px-2 py-2 lg:px-0 lg:py-0 text-yellow-300 hover:text-yellow-400 transition">Books</a>
+      <a href="{% url 'content:global_type_list' 'video' %}" class="block px-2 py-2 lg:px-0 lg:py-0 text-yellow-300 hover:text-yellow-400 transition">Videos</a>
+      <a href="{% url 'content:global_type_list' 'blog' %}" class="block px-2 py-2 lg:px-0 lg:py-0 text-yellow-300 hover:text-yellow-400 transition">Blogs</a>
+    </div>
+
+    <!-- Hidden Hamburger Menu -->
+    <div id="mobile-menu" class="hidden flex-col w-full bg-[#4d2323] border border-yellow-100 rounded-md z-50 shadow-lg lg:hidden mt-3">
+      <a href="/" class="block px-2 py-2 text-yellow-300 hover:bg-yellow-400/20 transition">Home</a>
+      <a href="{% url 'content:master_home' 'buddha' %}" class="block px-2 py-2 text-yellow-300 hover:bg-yellow-400/20 transition">Buddha</a>
+      <a href="{% url 'content:master_home' 'osho' %}" class="block px-2 py-2 text-yellow-300 hover:bg-yellow-400/20 transition">Osho</a>
+      <a href="{% url 'content:master_home' 'krishna' %}" class="block px-2 py-2 text-yellow-300 hover:bg-yellow-400/20 transition">Krishna</a>
+      <a href="{% url 'content:global_type_list' 'teaching' %}" class="block px-2 py-2 text-yellow-300 hover:bg-yellow-400/20 transition">Teachings</a>
+      <a href="{% url 'content:global_type_list' 'book' %}" class="block px-2 py-2 text-yellow-300 hover:bg-yellow-400/20 transition">Books</a>
+      <a href="{% url 'content:global_type_list' 'video' %}" class="block px-2 py-2 text-yellow-300 hover:bg-yellow-400/20 transition">Videos</a>
+      <a href="{% url 'content:global_type_list' 'blog' %}" class="block px-2 py-2 text-yellow-300 hover:bg-yellow-400/20 transition">Blogs</a>
+    </div>
+    <!-- Search Bar -->
+    <form method="get" action="{% url 'search' %}" class="relative mt-3 w-full sm:mt-0 sm:w-72 mx-auto">
+      <input type="text" name="q" placeholder="Search..." required aria-label="Search"
+             class="w-full pl-4 pr-12 py-2 rounded-full bg-[#faf5f0] text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 shadow-sm transition duration-300">
+      <button type="submit" aria-label="Submit search"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-yellow-500 transform transition-transform duration-300 hover:scale-110">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+             viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z"/>
+        </svg>
+      </button>
+    </form>
+
+    <!-- Desktop-only User/Login Links -->
+    <div class="hidden lg:flex items-center space-x-2 ml-auto relative">
+      {% if user.is_authenticated %}
+        <span class="text-sm text-gray-100 mr-2">Hi, {{ user.get_username }}</span>
+      {% elif request.session.is_guest %}
+        <span class="text-sm text-gray-100 mr-2">Guest</span>
+      {% endif %}
+      <button id="user-btn" class="px-4 py-2 rounded-full bg-yellow-400 text-[#4d2323] font-semibold hover:bg-yellow-300 transition flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z
+                   M4.5 20.25a8.25 8.25 0 1115 0v.75H4.5v-.75z"/>
+        </svg>
+      </button>
+      <div id="user-dropdown" class="hidden absolute top-full right-0 mt-2 bg-[#4d2323] border border-yellow-400 rounded shadow-lg py-1 text-sm w-32 opacity-0 scale-95 transition-all duration-200">
+        {% if user.is_authenticated %}
+          <a href="{% url 'logout' %}" onclick="showToast('Logout')" class="block px-4 py-2 hover:bg-yellow-400/20">Logout</a>
+        {% elif request.session.is_guest %}
+          <a href="{% url 'logout' %}" onclick="showToast('Exit Guest')" class="block px-4 py-2 hover:bg-yellow-400/20">Exit Guest</a>
+        {% else %}
+          <a href="{% url 'login' %}" onclick="showToast('Login')" class="block px-4 py-2 hover:bg-yellow-400/20">Login</a>
+          <a href="{% url 'signup' %}" onclick="showToast('Sign Up')" class="block px-4 py-2 hover:bg-yellow-400/20">Sign Up</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-yellow-400 text-[#4d2323] px-4 py-2 rounded shadow-lg opacity-0 transition-opacity duration-300 z-50"></div>
+
+  </nav>
+
+  <div class="container mx-auto p-6">
+    {% block content %}{% endblock %}
+  </div>
+  
+  <!-- ======= Footer ======= -->
+  <footer class="bg-[#4d2323] text-yellow-300 mt-11 border-t border-yellow-400/30">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 py-10 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+      <div>
+        <h2 class="text-2xl font-bold text-yellow-400 mb-3">Masters</h2>
+        <p class="text-sm text-yellow-200/80">Timeless wisdom from Buddha, Osho and Krishna—brought to you with care.</p>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold text-yellow-400 mb-3">Quick Links</h3>
+        <ul class="space-y-2">
+          <li><a href="/" class="hover:underline hover:text-yellow-200 transition">Home</a></li>
+          <li><a href="{% url 'content:master_home' 'buddha' %}" class="hover:underline hover:text-yellow-200 transition">Buddha</a></li>
+          <li><a href="{% url 'content:master_home' 'osho' %}" class="hover:underline hover:text-yellow-200 transition">Osho</a></li>
+          <li><a href="{% url 'content:master_home' 'krishna' %}" class="hover:underline hover:text-yellow-200 transition">Krishna</a></li>
+          <li><a href="{% url 'content:global_type_list' 'teaching' %}" class="hover:underline hover:text-yellow-200 transition">Teachings</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold text-yellow-400 mb-3">Resources</h3>
+        <ul class="space-y-2">
+          <li><a href="{% url 'content:global_type_list' 'book' %}" class="hover:underline hover:text-yellow-200 transition">Books</a></li>
+          <li><a href="{% url 'content:global_type_list' 'video' %}" class="hover:underline hover:text-yellow-200 transition">Videos</a></li>
+          <li><a href="{% url 'content:global_type_list' 'blog' %}" class="hover:underline hover:text-yellow-200 transition">Blogs</a></li>
+          <li><a href="{% url 'search' %}" class="hover:underline hover:text-yellow-200 transition">Search</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold text-yellow-400 mb-3">Stay Connected</h3>
+        <form action="{% url 'newsletter_subscribe' %}" method="post" class="space-y-3 w-full max-w-xs">
+          {% csrf_token %}
+          <input type="email" name="email" required class="w-full px-4 py-2 rounded text-black focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Your email">
+          <button type="submit" class="w-full bg-yellow-300 hover:bg-yellow-400 text-black font-medium px-5 py-2 rounded">Subscribe</button>
+        </form>
+        <div class="flex space-x-8 mt-5">
+          <a href="https://www.youtube.com/@ChantAndCheer" aria-label="YouTube" class="hover:text-yellow-300 transition"><i class="bi bi-youtube fs-16"></i></a>
+          <a href="https://www.google.com" aria-label="Google" class="hover:text-yellow-300 transition"><i class="bi bi-google fs-8"></i></a>
+          <a href="https://www.facebook.com" aria-label="Facebook" class="hover:text-yellow-300 transition"><i class="bi bi-facebook fs-8"></i></a>
+          <a href="https://www.instagram.com" aria-label="Instagram" class="hover:text-yellow-300 transition"><i class="bi bi-instagram fs-8"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-yellow-400/30 mt-6 py-4 text-center text-sm text-yellow-200/80">
+      &copy; {{ now|date:"Y" }} Masters. All rights reserved.
+    </div>
+  </footer>
+
+  <!-- ===== Optimized JS ===== -->
+  <script>
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('opacity-100');
+      setTimeout(() => toast.classList.remove('opacity-100'), 2000);
+    }
+
+    function toggleElement(element, showClass='opacity-100 scale-100', hideClass='opacity-0 scale-95', hideDelay=200) {
+      if (element.classList.contains('hidden')) {
+        element.classList.remove('hidden');
+        setTimeout(() => {
+          element.classList.add(...showClass.split(' '));
+          element.classList.remove(...hideClass.split(' '));
+        }, 10);
+      } else {
+        element.classList.add(...hideClass.split(' '));
+        element.classList.remove(...showClass.split(' '));
+        setTimeout(() => element.classList.add('hidden'), hideDelay);
+      }
+    }
+
+    // Hamburger menu
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    menuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      mobileMenu.classList.toggle('hidden');
+    });
+    document.addEventListener('click', (e) => {
+      if (!mobileMenu.contains(e.target) && !menuBtn.contains(e.target)) {
+        mobileMenu.classList.add('hidden');
+      }
+    });
+
+    // User dropdown
+    const userBtn = document.getElementById('user-btn');
+    const userDropdown = document.getElementById('user-dropdown');
+    if (userBtn) {
+      userBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleElement(userDropdown);
+      });
+      document.addEventListener('click', () => {
+        if (!userDropdown.classList.contains('hidden')) toggleElement(userDropdown);
+      });
+    }
+  </script>
+
+  <script src="{% static 'js/script.js' %}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous"></script>
+
+</body>
+</html>
+
+
+

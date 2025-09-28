@@ -1,0 +1,225 @@
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<div class="social-buttons"
+     data-object-id="{{ item.id }}"
+     data-app="{{ app_label }}"
+     data-model="{{ model_name }}">
+
+  <div class="login-msg"></div>
+
+  <!-- SOCIAL + NAV BUTTON ROW -->
+  <div class="button-row flex flex-wrap gap-3 items-center">
+    <a href="{{ prev_url|default:'#' }}"
+       class="inline-flex items-center justify-center w-12 h-12 rounded-full
+              bg-gradient-to-r from-yellow-700 to-emerald-200 text-white text-xl
+              font-semibold shadow-lg transition duration-300
+              hover:from-emerald-300 hover:to-green-400 hover:shadow-xl
+              {% if not prev_item %}pointer-events-none opacity-40{% endif %}">
+        &#8592;
+    </a>
+    <button class="icon-btn like-btn" data-value="1" title="Like" type="button">
+      <i class="bi bi-hand-thumbs-up"></i>
+      <span class="small-count like-count">{{ like_count|default:0 }}</span>
+    </button>
+    <button class="icon-btn dislike-btn" data-value="-1" title="Dislike" type="button">
+      <i class="bi bi-hand-thumbs-down"></i>
+      <span class="small-count dislike-count">{{ dislike_count|default:0 }}</span>
+    </button>
+
+    <!-- SHARE BUTTON WITH DROPDOWN -->
+    <div class="relative inline-block">
+      <button class="icon-btn share-btn" title="Share" type="button" onclick="toggleShareDropdown()">
+        <i class="bi bi-arrow-clockwise"></i>
+        <span class="small-count share-count">{{ share_count|default:0 }}</span>
+      </button>
+      <div id="share-dropdown" class="hidden absolute mt-2 right-0 bg-white shadow-lg rounded border w-40 z-50">
+        <a href="#" onclick="sharePlatform('whatsapp')" class="block px-4 py-2 hover:bg-gray-100">WhatsApp</a>
+        <a href="#" onclick="sharePlatform('gmail')" class="block px-4 py-2 hover:bg-gray-100">Gmail</a>
+        <a href="#" onclick="sharePlatform('facebook')" class="block px-4 py-2 hover:bg-gray-100">Facebook</a>
+        <a href="#" onclick="sharePlatform('twitter')" class="block px-4 py-2 hover:bg-gray-100">Twitter</a>
+        <a href="#" onclick="sharePlatform('linkedin')" class="block px-4 py-2 hover:bg-gray-100">LinkedIn</a>
+      </div>
+    </div>
+
+    <button class="icon-btn comment-toggle" title="Comment" type="button">
+      <i class="bi bi-chat-dots"></i>
+    </button>
+    <a href="{{ next_url|default:'#' }}"
+       class="inline-flex items-center justify-center w-12 h-12 rounded-full
+              bg-gradient-to-r from-yellow-700 to-emerald-200 text-white text-xl
+              font-semibold shadow-lg transition duration-300
+              hover:from-emerald-300 hover:to-green-400 hover:shadow-xl
+              {% if not next_item %}pointer-events-none opacity-40{% endif %}">
+        &#8594;
+    </a>      
+  </div>
+
+  <!-- Inline comment form (always visible) -->
+  <form class="comment-form hidden flex gap-2" method="post" action="#">
+    {% csrf_token %}
+    <input type="text" name="text" placeholder="Write a comment..." required
+           class="comment-input border rounded p-2 flex-1"/>
+    <button type="submit" class="send-btn bg-yellow-400 hover:bg-yellow-500 p-2 rounded">
+      <i class="bi bi-send-fill"></i>
+    </button>
+  </form>
+
+  <!-- Comment list (visible only on detail pages) -->
+  {% if show_comments_list %}
+  <ul class="comment-list mt-4">
+    {% for comment in comments %}
+      <li class="flex items-start justify-between mb-2" data-username="{{ comment.user.username }}">
+        <div id="comment-text-{{ comment.pk }}" class="flex-1">
+          <strong>{{ comment.user.username }}</strong>: {{ comment.text }}
+        </div>
+
+        {% if user.is_authenticated and comment.user == user %}
+          <div class="flex gap-2 ml-2">
+            <button type="button"
+                    class="text-yellow-400 hover:text-yellow-500 underline"
+                    onclick="toggleEdit('{{ comment.pk }}')">
+              Edit
+            </button>
+
+            <form method="post" action="{% url 'delete_comment' comment.pk %}"
+                  onsubmit="return confirm('Delete this comment?');">
+              {% csrf_token %}
+              <button type="submit"
+                      class="text-red-400 hover:text-red-500 underline">
+                Delete
+              </button>
+            </form>
+          </div>
+
+          <form id="edit-form-{{ comment.pk }}" class="edit-form hidden flex gap-2 mt-1 w-full"
+                action="{% url 'edit_comment' comment.pk %}" data-comment-id="{{ comment.pk }}">
+            {% csrf_token %}
+            <input type="text" name="text" value="{{ comment.text }}"
+                   class="border p-1 rounded flex-1 text-black"/>
+            <button type="submit" class="text-green-500 hover:text-green-600 underline">
+              Save
+            </button>
+            <button type="button" onclick="toggleEdit('{{ comment.pk }}')"
+                    class="text-gray-400 hover:text-gray-500 underline">
+              Cancel
+            </button>
+          </form>
+        {% endif %}
+      </li>
+    {% empty %}
+      <li>No comments yet. Be the first!</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</div>
+
+<script>
+function toggleEdit(commentId) {
+    const textDiv = document.getElementById(`comment-text-${commentId}`);
+    const form = document.getElementById(`edit-form-${commentId}`);
+    if (form.classList.contains("hidden")) {
+        form.classList.remove("hidden");
+        textDiv.style.display = "none";
+    } else {
+        form.classList.add("hidden");
+        textDiv.style.display = "block";
+    }
+}
+
+// AJAX edit handling compatible with Django
+document.querySelectorAll('.edit-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const commentId = this.dataset.commentId;
+        const textInput = this.querySelector('input[name="text"]').value;
+        const csrfToken = this.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        const username = this.closest('li').dataset.username;
+
+        const formData = new FormData();
+        formData.append('text', textInput);
+        formData.append('csrfmiddlewaretoken', csrfToken);
+
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const textDiv = document.getElementById(`comment-text-${commentId}`);
+                textDiv.innerHTML = `<strong>${username}</strong>: ${textInput}`;
+                toggleEdit(commentId);
+            } else {
+                alert(data.error || 'Error updating comment.');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Error updating comment.');
+        });
+    });
+});
+
+// Smooth share dropdown toggle
+function toggleShareDropdown() {
+    const dropdown = document.getElementById('share-dropdown');
+    if (dropdown.classList.contains('hidden')) {
+        dropdown.classList.remove('hidden');
+        dropdown.style.opacity = 0;
+        dropdown.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            dropdown.style.transition = 'all 150ms ease-out';
+            dropdown.style.opacity = 1;
+            dropdown.style.transform = 'scale(1)';
+        }, 10);
+    } else {
+        dropdown.style.transition = 'all 150ms ease-in';
+        dropdown.style.opacity = 0;
+        dropdown.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            dropdown.classList.add('hidden');
+        }, 150);
+    }
+}
+
+// Click outside closes the dropdown
+window.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('share-dropdown');
+    const shareBtn = document.querySelector('.share-btn');
+    if (!dropdown.contains(e.target) && !shareBtn.contains(e.target)) {
+        if (!dropdown.classList.contains('hidden')) {
+            dropdown.style.transition = 'all 150ms ease-in';
+            dropdown.style.opacity = 0;
+            dropdown.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                dropdown.classList.add('hidden');
+            }, 150);
+        }
+    }
+});
+
+// Share to different platforms dynamically
+function sharePlatform(platform) {
+    const url = encodeURIComponent(window.location.href);
+    let shareUrl = '';
+    switch(platform) {
+        case 'whatsapp':
+            shareUrl = `https://api.whatsapp.com/send?text=${url}`;
+            break;
+        case 'gmail':
+            shareUrl = `mailto:?subject=Check this out&body=${url}`;
+            break;
+        case 'facebook':
+            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+            break;
+        case 'twitter':
+            shareUrl = `https://twitter.com/intent/tweet?url=${url}`;
+            break;
+        case 'linkedin':
+            shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+            break;
+    }
+    window.open(shareUrl, '_blank');
+}
+</script>

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Access Required{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-[#4d2323]">
+  <!-- Smaller card -->
+  <div class="max-w-md w-full mx-4 p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-lg">
+    <div class="text-center mb-5">
+      <h1 class="text-2xl font-semibold text-yellow-300 mb-1">Welcome</h1>
+      <p class="text-sm text-gray-200">
+        Please login for full access — or continue as a guest with limited privileges.
+      </p>
+    </div>
+
+    <!-- Buttons -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-center">
+      <!-- Login -->
+      <a href="{% url 'login' %}?next={{ next|urlencode }}"
+         class="inline-block px-5 py-2 rounded-full border border-yellow-400 text-yellow-300 hover:bg-yellow-400/10 transition">
+        Login
+      </a>
+
+      <!-- Sign Up -->
+      <a href="{% url 'signup' %}"
+         class="inline-block px-5 py-2 rounded-full border border-yellow-400 text-yellow-300 hover:bg-yellow-400/10 transition">
+        Sign Up
+      </a>
+
+      <!-- Continue as Guest -->
+      <form method="post" action="{% url 'guest' %}" class="md:col-span-2">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+        <button type="submit"
+                class="w-full px-5 py-2 rounded-full border border-yellow-400 text-yellow-300 hover:bg-yellow-400/10 transition">
+          Continue as Guest
+        </button>
+      </form>
+    </div>
+
+    <p class="mt-5 text-xs text-gray-300 text-center">
+      Guest access is read-only. To create or modify content, please Login.
+    </p>
+  </div>
+</div>
+{% endblock %}

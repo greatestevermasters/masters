@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% load static %}
+{% load social_tags %}
+{% load dict_extras %}
+{% load clean_html %}
+
+{% block title %}
+    {% if master %}
+        {{ master|capfirst }} Dashboard
+    {% else %}
+        Masters Dashboard
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
+
+<div class="container mx-auto p-6">
+
+    <!-- Hero -->
+    <section class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-semibold text-white mb-2">
+            {% if master %}{{ master|capfirst }}{% endif %}{% if master %}:{% endif %} The Greatest Master!
+        </h2>
+        <!-- <p class="text-yellow-200/90 text-lg md:text-xl">
+            Explore Teachings, Books, Videos, and Blogs{% if master %} about {{ master|capfirst }}{% endif %}.
+        </p> -->
+    </section>
+
+    <!-- Grid of content types -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8" style="background-color:#313032;">
+        {% for ctype, ctitle in content_types %}
+        {% with items=items_by_type|dict_get:ctype %}
+        <section class="bg-[#3b1a1a] border border-yellow-500 rounded-xl p-6 transition duration-200 flex flex-col">
+
+            <!-- Section Header -->
+            <div class="flex justify-between items-center mb-4">
+                {% url 'content:content_list' master=master|default:'all' content_type=ctype as section_url %}
+                <span class="text-yellow-300 font-semibold text-xl cursor-pointer no-underline hover:text-yellow-400 transition"
+                    onclick="window.location.href='{{ section_url }}'">
+                    {{ ctitle }}
+                    <span class="text-yellow-200/80 text-base">[{{ items|length|default:0 }}]</span>
+                </span>
+                
+                {% if items %}
+                <div class="dropdown bg-green-700">
+                    {% with dropdown_id=master|default:"master"|lower|cut:" "|add:"_"|add:ctype|lower|cut:" " %}
+                    <button type="button"
+                            style="color:#7f114d"
+                            class="dropdown-btn"
+                            data-dropdown="{{ dropdown_id }}">
+                        Menu ▼
+                    </button>
+
+                    <ul id="{{ dropdown_id }}-dropdown" class="dropdown-content scrollable-dropdown">
+                        {% for item in items %}
+                        <li>
+                            <!-- changed span to anchor so it’s clickable -->
+                            <a href="{{ item.get_absolute_url }}" class="block px-4 py-2 text-yellow-200 hover:text-yellow-400">
+                                {{ item.title }}
+                            </a>
+                        </li>
+                        {% empty %}
+                        <li class="px-4 py-2 text-yellow-200/70">No entries.</li>
+                        {% endfor %}
+                    </ul>
+                    {% endwith %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Section Body: latest item -->
+            {% if items %}
+            <div class="flex flex-col h-full">
+                {% for item in items|slice:":1" %}
+                <a href="{{ item.get_absolute_url }}" class="block rounded-lg overflow-hidden shadow-sm flex flex-col h-full
+                                                       bg-[#4d2323] sm:bg-[#5a2c2c] md:bg-[#6e3b3b] hover:bg-[#7b4747] transition duration-300 no-underline">
+
+                    {% if item.image %}
+                        <img src="{{ item.image.url }}" 
+                             alt="{{ item.title }}"
+                             class="w-full h-auto object-contain rounded-t-lg">
+                    {% endif %}
+
+                    {% if ctype == 'video' and item.url %}
+                        <div class="relative mb-2 pt-[56.25%] overflow-hidden rounded">
+                            <iframe src="{{ item.url }}" class="absolute top-0 left-0 w-full h-full"
+                                    frameborder="0" allowfullscreen></iframe>
+                        </div>
+                    {% endif %}
+
+                    <div class="p-4 flex flex-col flex-grow">
+                        <!-- TITLE -->
+                        <h3 class="text-xl font-semibold text-yellow-300 mb-1">
+                            {{ item.title }}
+                        </h3>
+
+                        {% if ctype == 'book' and item.author %}
+                            <p class="text-yellow-200/80 mb-2">By {{ item.author }}</p>
+                        {% elif item.description %}
+                            <p class="text-yellow-200/80 mb-2 line-clamp-6 max-h-32 overflow-hidden">
+                                {{ item.description|clean_html|truncatewords:0|safe }}
+                            </p>
+                        {% endif %}
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+                <p class="text-yellow-200/80">No {{ ctitle|lower }} available.</p>
+            {% endif %}
+
+            <!-- Social Buttons -->
+            <div class="mt-auto pt-6 pb-4">
+                {% for item in items|slice:":1" %}
+                    {% include "social/social_buttons.html" with url=item.get_absolute_url master=master content_type=ctype show_comments_list=False %}
+                {% endfor %}
+            </div>
+
+        </section>
+        {% endwith %}
+        {% endfor %}
+
+    </div>
+</div>
+
+<!-- Dropdown JS -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.dropdown-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const dropdownId = btn.getAttribute('data-dropdown') + '-dropdown';
+            const menu = document.getElementById(dropdownId);
+            if (!menu) return;
+
+            // Hide other dropdowns
+            document.querySelectorAll('.dropdown-content').forEach(el => {
+                if (el !== menu) el.classList.remove('show');
+            });
+
+            // Toggle this dropdown
+            menu.classList.toggle('show');
+        });
+    });
+
+    // Hide dropdowns when clicking outside
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.dropdown-content').forEach(el => el.classList.remove('show'));
+    });
+
+    // Hide dropdowns on ESC
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.dropdown-content').forEach(el => el.classList.remove('show'));
+        }
+    });
+});
+</script>
+
+<link rel="stylesheet" href="{% static 'social/social_buttons.css' %}">
+<link rel="stylesheet" href="{% static 'css/content_home.css' %}">
+<script src="{% static 'social/social_buttons.js' %}"></script>
+
+
+{% endblock %}

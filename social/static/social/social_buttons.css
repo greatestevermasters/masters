@@ -1,0 +1,108 @@
+/* === Social Buttons – Clean & Aligned === */
+.social-buttons {
+    width: 100%;          /* span full card width */
+    margin: 0;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+/* one centered horizontal row for all icons */
+.button-row {
+    display: flex;
+    flex-wrap: nowrap;    /* keep in one line until very small screens */
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+}
+
+/* generic icon button style */
+.button-row button,
+.button-row .nav-btn,
+.button-row .comment-form button {
+    min-width: 44px;
+    height: 44px;
+    padding: 0;
+    font-size: 20px;
+    border: none;
+    border-radius: 8px;          /* <- square / rectangular corners */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.button-row button:hover,
+.button-row .nav-btn:hover,
+.button-row .comment-form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* individual colors */
+.icon-btn.like-btn       { background-color: #00b894; color: #fff; }
+.icon-btn.dislike-btn    { background-color: #d63031; color: #fff; }
+.icon-btn.share-btn      { background-color: #0984e3; color: #fff; }
+.icon-btn.comment-toggle { background-color: #fd79a8; color: #fff; }
+.icon-btn.nav-btn        { background-color: #6c5ce7; color: #fff; }
+.icon-btn.nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* comment form hidden by default */
+.comment-form {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+    max-width: 0;
+    overflow: hidden;
+    transition: max-width 0.3s ease;
+}
+
+.comment-form input {
+    flex: 1;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.comment-form button {
+    min-width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    font-size: 18px;
+}
+
+.comment-form.show {
+    max-width: 300px;
+}
+
+/* comment list */
+.comment-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.comment-list li {
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+}
+
+/* login message */
+.login-msg {
+    color: #e74c3c;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+}
+
+/* responsive wrap for very small screens */
+@media (max-width: 600px) {
+    .button-row {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .comment-form.show { max-width: 100%; }
+}

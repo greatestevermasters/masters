@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{%load static %}
+{% load social tags %}
+{% load clean_html %}
+{% block title %}{{ master|capfirst }} {{ content_type|capfirst }}{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl text-center mb-6">
+    {{ master|capfirst }} {{ content_type|capfirst }}
+</h1>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  {% for item in items %}
+    <a href="{{ item.get_absolute_url }}" class="card p-6 text-center">
+      <h2 class="mt-4 text-xl font-semibold text-yellow-300">{{ item.title }}</h2>
+      {% if item.image %}
+        <img src="{{ item.image.url }}" alt="{{ item.title }}" class="w-full h-64 md:h-80 lg:h-96 object-contain rounded-t-lg">
+      {% endif %}
+      <!-- <h2 class="mt-4 text-xl font-semibold">{{ item.title }}</h2> -->
+      {% if item.excerpt %}
+        <div class="text-white mt-2 text-justify">{{ item.excerpt|clean_html|truncatewords:0|safe }}</div>
+      {% endif %}
+    </a>
+  {% empty %}
+    <p class="text-center text-white">
+        No {{ content_type }} available for {{ master|capfirst }} yet.
+    </p>
+  {% endfor %}
+</div>
+{% endblock %}
