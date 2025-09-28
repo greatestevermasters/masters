@@ -94,3 +94,5 @@ buddha/             osho/            krishna/
            ┌───────┴─────────┐
            │ Content (any master/type) │
            └─────────────────────────┘
+
+
