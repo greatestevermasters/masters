@@ -23,11 +23,38 @@ DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
 # local
 # ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost")
 # prod
-ALLOWED_HOSTS = os.environ.get(
+# 
+
+
+# Get hosts from environment variable, or use the default string
+ALLOWED_HOSTS_STRING = os.environ.get(
     "DJANGO_ALLOWED_HOSTS",
     "masters-spiritual.com,www.masters-spiritual.com,masters-spiritual.onrender.com"
 )
-ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS.split(",") if host]
+
+# Convert the string to a list, stripping whitespace
+ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_STRING.split(",") if host]
+
+# --- CRITICAL ADDITIONS ---
+# 1. Add localhost for internal health checks/requests
+ALLOWED_HOSTS.append('127.0.0.1')
+
+# 2. Add the dynamic external hostname provided by Render
+#    This covers the main URL and may be required for certain proxy setups.
+render_host = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if render_host:
+    ALLOWED_HOSTS.append(render_host)
+
+# Optional: Add the specific port Render uses if it's explicitly in the Host header
+ALLOWED_HOSTS.append('0.0.0.0')
+# --------------------------
+
+# Print to logs to verify during deployment (optional, but helpful)
+# print(f"DEBUG: ALLOWED_HOSTS is set to: {ALLOWED_HOSTS}")
+
+
+
+
 
 # --------------------------------------------------------------------------
 # APPLICATION DEFINITION
