@@ -3,16 +3,19 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from . import views  # masters/views.py
+from .views import healthz
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
 
-    # Third-party apps
-    path("summernote/", include("django_summernote.urls")),
-
+    path("healthz/", healthz),   # ✅ Health check endpoint
     # Your apps
     path("content/", include("content.urls")),
     path("social/", include("social.urls")),
+        # Third-party apps
+    path("summernote/", include("django_summernote.urls")),
+
 
     # Authentication & signup
     path("signup/", views.SignupView.as_view(), name="signup"),

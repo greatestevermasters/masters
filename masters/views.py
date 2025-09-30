@@ -19,6 +19,12 @@ from content.models import Content   # ✅ unified content model
 
 import random
 
+from django.http import JsonResponse
+
+def healthz(request):
+    return JsonResponse({"status": "ok"})
+
+
 
 # ---------------------------
 # Signup

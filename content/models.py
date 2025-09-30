@@ -22,15 +22,48 @@ from social.models import Comment, LikeDislike
 
 
 # ---------- Helper ----------
+import os
+import logging
+
+logger = logging.getLogger(__name__)
+
 def compress_image(image_path: str) -> None:
-    """Shrink uploaded images for better performance."""
-    img = Image.open(image_path)
-    img.thumbnail((1200, 1200))
-    if img.mode in ("RGBA", "P"):
-        img = img.convert("RGB")
-    img.save(image_path, format="JPEG", quality=80, optimize=True)
+    """
+    Compress an image in-place while preserving the original file format.
+    Works safely for .jpg/.jpeg and .png.
+    """
+    try:
+        if not os.path.exists(image_path):
+            logger.warning(f"compress_image: file not found: {image_path}")
+            return
 
+        ext = os.path.splitext(image_path)[1].lower()  # ".png" or ".jpg"
+        with Image.open(image_path) as img:
+            img_copy = img.copy()
+            img_copy.thumbnail((1200, 1200))
 
+            if ext in (".jpg", ".jpeg"):
+                # ensure RGB (JPEG doesn't support alpha)
+                if img_copy.mode in ("RGBA", "P", "LA"):
+                    img_copy = img_copy.convert("RGB")
+                img_copy.save(image_path, format="JPEG", quality=85, optimize=True)
+
+            elif ext == ".png":
+                # preserve alpha if present
+                if img_copy.mode == "P":
+                    img_copy = img_copy.convert("RGBA")
+                img_copy.save(image_path, format="PNG", optimize=True)
+
+            else:
+                # fallback: save in detected format or overwrite
+                fmt = img_copy.format or "PNG"
+                try:
+                    img_copy.save(image_path, format=fmt)
+                except Exception:
+                    img_copy.save(image_path)
+
+    except Exception as e:
+        logger.exception(f"compress_image error for {image_path}: {e}")
 # ---------- Choices ----------
 MASTER_CHOICES = [
     ("buddha", "Buddha"),
@@ -118,22 +151,39 @@ class Content(TimeStamped):
             },
         )
 
-    def save(self, *args, **kwargs):
-        # Normalize YouTube links to embed format when type is video
-        if self.content_type == "video" and self.url:
-            if "youtube.com/watch?v=" in self.url:
-                self.url = self.url.replace("watch?v=", "embed/")
-            elif "youtu.be/" in self.url:
-                video_id = self.url.split("/")[-1]
-                self.url = f"https://www.youtube.com/embed/{video_id}"
+    # def save(self, *args, **kwargs):
+    #     # Normalize YouTube links to embed format when type is video
+    #     if self.content_type == "video" and self.url:
+    #         if "youtube.com/watch?v=" in self.url:
+    #             self.url = self.url.replace("watch?v=", "embed/")
+    #         elif "youtu.be/" in self.url:
+    #             video_id = self.url.split("/")[-1]
+    #             self.url = f"https://www.youtube.com/embed/{video_id}"
 
-        super().save(*args, **kwargs)
+    #     super().save(*args, **kwargs)
 
-        # Compress image after save
-        if self.image:
+    #     # Compress image after save
+    #     if self.image:
+    #         compress_image(self.image.path)
+
+def save(self, *args, **kwargs):
+    # Normalize YouTube links (keep your existing logic)
+    if self.content_type == "video" and self.url:
+        if "youtube.com/watch?v=" in self.url:
+            self.url = self.url.replace("watch?v=", "embed/")
+        elif "youtu.be/" in self.url:
+            video_id = self.url.split("/")[-1]
+            self.url = f"https://www.youtube.com/embed/{video_id}"
+
+    # Save first so ImageField file is written to disk
+    super().save(*args, **kwargs)
+
+    # Then compress the file on disk (safe: will not change extension)
+    try:
+        if self.image and getattr(self.image, "path", None):
             compress_image(self.image.path)
-
-
+    except Exception as e:
+        logger.exception(f"Error compressing image for Content(id={getattr(self, 'id', 'n/a')}): {e}")
 
 
 
