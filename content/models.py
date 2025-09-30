@@ -25,6 +25,14 @@ from social.models import Comment, LikeDislike
 import os
 import logging
 
+
+class Post(models.Model):
+    title = models.CharField(max_length=200)
+    image = models.ImageField(upload_to="content/")
+
+    def __str__(self):
+        return self.title
+
 logger = logging.getLogger(__name__)
 
 def compress_image(image_path: str) -> None:

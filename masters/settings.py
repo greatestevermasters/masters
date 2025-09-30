@@ -2,6 +2,9 @@ from pathlib import Path
 import os
 import dj_database_url
 from dotenv import load_dotenv  # type: ignore
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -94,15 +97,23 @@ WSGI_APPLICATION = 'masters.wsgi.application'
 # --------------------------------------------------------------------------
 # DATABASE, AUTH, and I18N
 # --------------------------------------------------------------------------
-
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
 DATABASES = {
     "default": dj_database_url.config(
+        default="postgresql://postgres:postgres@localhost:5432/masters",  # local fallback
         conn_max_age=600,
-        ssl_require=True,  # Render requires SSL
+        ssl_require=os.getenv("RENDER") is not None,  # only require SSL on Render
     )
 }
 
+# Cloudinary config
+cloudinary.config(
+    cloud_name=os.getenv("CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+    secure=True,
+)
 
 # DATABASES = {
 #     'default': {
@@ -139,15 +150,15 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# WhiteNoise storage backend for production
+# WhiteNoise storage backend for production (for static files only)
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-# 🔹 Media files
+# 🔹 Cloudinary Media Storage
+CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
+# (You don’t need MEDIA_ROOT if using Cloudinary)
 MEDIA_URL = "/media/"
-if os.getenv("RENDER"):  # On Render → use persistent disk
-    MEDIA_ROOT = "/var/media"
-else:  # Local development
-    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # --------------------------------------------------------------------------
