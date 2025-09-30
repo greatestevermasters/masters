@@ -23,8 +23,10 @@ DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
 # local
 # ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost")
 # prod
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS",  "masters-spiritual.com,www.masters-spiritual.com,masters-spiritual.onrender.com")
-
+ALLOWED_HOSTS = os.environ.get(
+    "DJANGO_ALLOWED_HOSTS",
+    "masters-spiritual.com,www.masters-spiritual.com,masters-spiritual.onrender.com"
+)
 ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS.split(",") if host]
 
 # --------------------------------------------------------------------------
