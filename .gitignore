@@ -65,3 +65,5 @@ dist/
 *.egg-info/
 *.egg
 pip-wheel-metadata/
+
+media-backup.zip
