@@ -3,6 +3,8 @@ import os
 import dj_database_url
 from dotenv import load_dotenv
 
+
+
 # ------------------------------------------------------------------------------
 # BASE
 # ------------------------------------------------------------------------------
@@ -19,17 +21,27 @@ SECRET_KEY = os.getenv(
     "django-insecure-local-dev-key-change-this"
 )
 
-DEBUG = os.getenv("DEBUG", "False") == "True"
+# DEBUG = os.getenv("DEBUG", "False") == "True"
+DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
 
 ALLOWED_HOSTS = os.getenv(
     "DJANGO_ALLOWED_HOSTS",
     "127.0.0.1,localhost,.onrender.com,masters-spiritual.com"
 ).split(",")
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://masters-spiritual.com",
-    "https://*.onrender.com",
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    ".onrender.com",
+    "masters-spiritual.com",
 ]
+
+# CSRF_TRUSTED_ORIGINS = [
+#     "https://masters-spiritual.com",
+#     "https://.onrender.com",
+#     "http://127.0.0.1:8000",
+#     "http://localhost:8000",
+# ]
 
 LOGIN_URL = "/login/"
 
@@ -100,17 +112,26 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "masters.wsgi.application"
 
-# ------------------------------------------------------------------------------
-# DATABASE (POSTGRES — LOCAL + RENDER)
-# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------
+# DATABASE CONFIG (LOCAL vs RENDER)
+# ------------------------------------------------------------------
 
-DATABASES = {
-    "default": dj_database_url.config(
-        default="postgresql://mastersuser:yourpassword@localhost:5432/masters",
-        conn_max_age=600,
-        ssl_require=os.getenv("RENDER") is not None,
-    )
-}
+if os.getenv("RENDER"):
+    # ✅ Render production database
+    DATABASES = {
+        "default": dj_database_url.config(
+            conn_max_age=600,
+            ssl_require=True,
+        )
+    }
+else:
+    # ✅ Local development database
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 # ------------------------------------------------------------------------------
 # PASSWORDS & I18N
@@ -134,15 +155,26 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 
 # ------------------------------------------------------------------------------
 # MEDIA FILES (CLOUDINARY — FIXES MISSING POSTS)
 # ------------------------------------------------------------------------------
 
+# --------------------------------------------------------------------------
+# MEDIA FILES (CLOUDINARY)
+# --------------------------------------------------------------------------
+
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")
+
+import cloudinary
+cloudinary.config(secure=True)
+
 MEDIA_URL = "/media/"
+
 
 # ❗ DO NOT define MEDIA_ROOT when using Cloudinary
 
@@ -171,6 +203,9 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+
+# print("CLOUDINARY_URL =", CLOUDINARY_URL)
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
 

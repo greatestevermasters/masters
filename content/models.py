@@ -25,6 +25,12 @@ from social.models import Comment, LikeDislike
 import os
 import logging
 
+from cloudinary.models import CloudinaryField
+from django.db import models
+
+class Post(models.Model):
+    image = CloudinaryField('image', blank=True, null=True)
+
 
 # # class Post(models.Model):
 # #     title = models.CharField(max_length=200)
@@ -45,25 +51,22 @@ def compress_image(image_path: str) -> None:
             logger.warning(f"compress_image: file not found: {image_path}")
             return
 
-        ext = os.path.splitext(image_path)[1].lower()  # ".png" or ".jpg"
+        ext = os.path.splitext(image_path)[1].lower()
         with Image.open(image_path) as img:
             img_copy = img.copy()
             img_copy.thumbnail((1200, 1200))
 
             if ext in (".jpg", ".jpeg"):
-                # ensure RGB (JPEG doesn't support alpha)
                 if img_copy.mode in ("RGBA", "P", "LA"):
                     img_copy = img_copy.convert("RGB")
                 img_copy.save(image_path, format="JPEG", quality=85, optimize=True)
 
             elif ext == ".png":
-                # preserve alpha if present
                 if img_copy.mode == "P":
                     img_copy = img_copy.convert("RGBA")
                 img_copy.save(image_path, format="PNG", optimize=True)
 
             else:
-                # fallback: save in detected format or overwrite
                 fmt = img_copy.format or "PNG"
                 try:
                     img_copy.save(image_path, format=fmt)
@@ -72,6 +75,8 @@ def compress_image(image_path: str) -> None:
 
     except Exception as e:
         logger.exception(f"compress_image error for {image_path}: {e}")
+
+
 # ---------- Choices ----------
 MASTER_CHOICES = [
     ("buddha", "Buddha"),
@@ -109,26 +114,14 @@ class Content(TimeStamped):
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=220, unique=True)
 
-    # Generic text fields (Summernote for rich text)
-    description = SummernoteTextField(blank=True)  # main body or long text
-    excerpt = SummernoteTextField(blank=True)      # optional short intro (e.g. blog)
+    description = SummernoteTextField(blank=True)
+    excerpt = SummernoteTextField(blank=True)
 
-    # Optional fields used only for certain types
-    url = models.URLField(blank=True, null=True)      # for video
-    author = models.CharField(max_length=200, blank=True)  # for book
+    url = models.URLField(blank=True, null=True)
+    author = models.CharField(max_length=200, blank=True)
 
-    # Additions for book buying links
-    flipkart_buy_link = models.URLField(
-        max_length=500,
-        blank=True,
-        null=True
-    )
-
-    amazon_buy_link = models.URLField(
-        max_length=500,
-        blank=True,
-        null=True
-    )
+    flipkart_buy_link = models.URLField(max_length=500, blank=True, null=True)
+    amazon_buy_link = models.URLField(max_length=500, blank=True, null=True)
 
     image = models.ImageField(
         upload_to="content/%Y/%m/%d/",
@@ -137,7 +130,6 @@ class Content(TimeStamped):
         validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png"])],
     )
 
-    # Social relations
     comments = GenericRelation(Comment, related_query_name="content_comments")
     likes = GenericRelation(LikeDislike, related_query_name="content_likes")
 
@@ -159,41 +151,24 @@ class Content(TimeStamped):
             },
         )
 
-    # def save(self, *args, **kwargs):
-    #     # Normalize YouTube links to embed format when type is video
-    #     if self.content_type == "video" and self.url:
-    #         if "youtube.com/watch?v=" in self.url:
-    #             self.url = self.url.replace("watch?v=", "embed/")
-    #         elif "youtu.be/" in self.url:
-    #             video_id = self.url.split("/")[-1]
-    #             self.url = f"https://www.youtube.com/embed/{video_id}"
+    def save(self, *args, **kwargs):
+        # Normalize YouTube links (keep your existing logic)
+        if self.content_type == "video" and self.url:
+            if "youtube.com/watch?v=" in self.url:
+                self.url = self.url.replace("watch?v=", "embed/")
+            elif "youtu.be/" in self.url:
+                video_id = self.url.split("/")[-1]
+                self.url = f"https://www.youtube.com/embed/{video_id}"
 
-    #     super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
-    #     # Compress image after save
-    #     if self.image:
-    #         compress_image(self.image.path)
-
-def save(self, *args, **kwargs):
-    # Normalize YouTube links (keep your existing logic)
-    if self.content_type == "video" and self.url:
-        if "youtube.com/watch?v=" in self.url:
-            self.url = self.url.replace("watch?v=", "embed/")
-        elif "youtu.be/" in self.url:
-            video_id = self.url.split("/")[-1]
-            self.url = f"https://www.youtube.com/embed/{video_id}"
-
-    # Save first so ImageField file is written to disk
-    super().save(*args, **kwargs)
-
-    # Then compress the file on disk (safe: will not change extension)
-    try:
-        if self.image and getattr(self.image, "path", None):
-            compress_image(self.image.path)
-    except Exception as e:
-        logger.exception(f"Error compressing image for Content(id={getattr(self, 'id', 'n/a')}): {e}")
-
-
+        try:
+            if self.image and getattr(self.image, "path", None):
+                compress_image(self.image.path)
+        except Exception as e:
+            logger.exception(
+                f"Error compressing image for Content(id={getattr(self, 'id', 'n/a')}): {e}"
+            )
 
 
 # # ---------- Helper ----------
