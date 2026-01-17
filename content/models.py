@@ -122,13 +122,19 @@ class Content(TimeStamped):
 
     flipkart_buy_link = models.URLField(max_length=500, blank=True, null=True)
     amazon_buy_link = models.URLField(max_length=500, blank=True, null=True)
+    
+    image = CloudinaryField(
+                'image',
+                blank=True,
+                null=True
+            )
 
-    image = models.ImageField(
-        upload_to="content/%Y/%m/%d/",
-        blank=True,
-        null=True,
-        validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png"])],
-    )
+    # image = models.ImageField(
+    #     upload_to="content/%Y/%m/%d/",
+    #     blank=True,
+    #     null=True,
+    #     validators=[FileExtensionValidator(allowed_extensions=["jpg", "jpeg", "png"])],
+    # )
 
     comments = GenericRelation(Comment, related_query_name="content_comments")
     likes = GenericRelation(LikeDislike, related_query_name="content_likes")
