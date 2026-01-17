@@ -4,12 +4,12 @@ from django_summernote.widgets import SummernoteWidget
 from .models import Content
 
 from django.contrib import admin
-from .models import Post   # add more models here if needed
+# from .models import Post   # add more models here if needed
 
-@admin.register(Post)
-class PostAdmin(admin.ModelAdmin):
-    list_display = ("id", "title")   # fields you want visible in admin list
-    search_fields = ("title",)
+# @admin.register(Post)
+# class PostAdmin(admin.ModelAdmin):
+#     list_display = ("id", "title")   # fields you want visible in admin list
+#     search_fields = ("title",)
 
 
 class ContentForm(forms.ModelForm):

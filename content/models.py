@@ -26,12 +26,12 @@ import os
 import logging
 
 
-class Post(models.Model):
-    title = models.CharField(max_length=200)
-    image = models.ImageField(upload_to="content/")
+# # class Post(models.Model):
+# #     title = models.CharField(max_length=200)
+# #     image = models.ImageField(upload_to="content/")
 
-    def __str__(self):
-        return self.title
+#     def __str__(self):
+#         return self.title
 
 logger = logging.getLogger(__name__)
 

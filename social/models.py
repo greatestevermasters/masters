@@ -41,9 +41,34 @@ class Comment(TimeStamped):
     content_object = GenericForeignKey("content_type", "object_id")
     text = models.TextField()
 
+# class Share(TimeStamped):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='shares')
+#     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+#     object_id = models.PositiveIntegerField()
+#     content_object = GenericForeignKey("content_type", "object_id")
+#     platform = models.CharField(max_length=50, default="link")
+
+# Assuming you already have a TimeStamped base class
 class Share(TimeStamped):
+    PLATFORM_CHOICES = [
+        ("whatsapp", "WhatsApp"),
+        ("gmail", "Gmail"),
+        ("facebook", "Facebook"),
+        ("twitter", "Twitter"),
+        ("instagram", "Instagram"),
+        ("linkedin", "LinkedIn"),
+    ]
+
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='shares')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey("content_type", "object_id")
-    platform = models.CharField(max_length=50, default="link")
+
+    platform = models.CharField(
+        max_length=50,
+        choices=PLATFORM_CHOICES,
+        default="whatsapp",
+    )
+
+    def __str__(self):
+        return f"{self.user} shared on {self.platform}"
